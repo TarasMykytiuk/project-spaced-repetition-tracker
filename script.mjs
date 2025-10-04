@@ -6,8 +6,10 @@
 
 // Hook up to provided modules
 import { getUserIds } from "./common.mjs";
+import { addData, getData } from "./storage.mjs";
 
 const userSelect = document.getElementById("userSelect");
+const newTopicForm = document.getElementById("addTopicForm");
 
 // When the page loads, show all users in the dropdown
 window.onload = () => {
@@ -17,8 +19,26 @@ window.onload = () => {
     users.map((u) => `<option value="${u}">${u}</option>`).join("");
 };
 
+document.getElementById('startDate').valueAsDate = new Date();
+
 // When a user is chosen, send an event for later features
 userSelect.addEventListener("change", (e) => {
   const userId = e.target.value;
   document.dispatchEvent(new CustomEvent("user:selected", { detail: { userId } }));
+});
+
+newTopicForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const userId = document.getElementById("userSelect").value;
+  if (userId == "") {
+    alert("Select user!");
+    newTopicForm.reset();
+  } else {
+    const topicName = document.getElementById("topicName").value;
+    const startDate = document.getElementById("startDate").value;
+    addData(userId, [topicName, startDate]);
+    newTopicForm.reset();
+    // this line added to check if data is stored, it shod be deleted in final version
+    alert("User_" + userId + " data is: " + getData(userId));
+  }
 });
