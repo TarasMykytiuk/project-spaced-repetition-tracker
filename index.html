@@ -1,58 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spaced Repetition Tracker</title>
-  </head>
-  <body>
-    <header>
-      <h1> Study Tracker – Spaced Repetition</h1>
-    </header>
 
-      <!-- User Selection -->
-      <section id="userSection">
-        <h2 id="userSectionTitle">Select a User</h2>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spaced Repetition Tracker</title>
+</head>
 
-        <label for="userSelect">User:</label>
-        <select id="userSelect" name="userSelect" >
-          <option value="">Choose a user…</option>
-        </select>
-        <p id="userHelp">Pick a user to view their revision agenda.</p>
-      </section>
+<body>
+  <header>
+    <h1> Study Tracker – Spaced Repetition</h1>
+  </header>
 
-      <!-- Agenda Display -->
-      <section id="agendaSection" >
-        <h2 id="agendaTitle">Upcoming Revision Topics</h2>
-        <ul id="agendaList" ></ul>
-        <p id="emptyMessage" hidden>No topics yet — add one below!</p>
-      </section>
+  <!-- User Selection -->
+  <section id="userSection">
+    <h2 id="userSectionTitle">Select a User</h2>
 
-      <!-- Add New Topic Form -->
-      <section id="addTopicSection" a>
-        <h2 id="addTitle">Add New Topic</h2>
-        <form id="addTopicForm" >
-          <div>
-            <label for="topicName">Topic Name</label>
-            <input id="topicName" name="topicName" required />
-          </div>
+    <label for="userSelect">User:</label>
+    <select id="userSelect" name="userSelect">
+      <option value="">Choose a user…</option>
+    </select>
+    <p id="userHelp">Pick a user to view their revision agenda.</p>
+  </section>
 
-          <div>
-            <label for="startDate">Start Date</label>
-            <input id="startDate" name="startDate" type="date" required />
-          </div>
+  <!-- Agenda Display -->
+  <section id="agendaSection">
+    <h2 id="agendaTitle">Upcoming Revision Topics</h2>
+    <ul id="agendaList"></ul>
+    <p id="emptyMessage" hidden>No topics yet — add one below!</p>
+  </section>
 
-          <button type="submit">Add Topic</button>
+  <!-- Add New Topic Form -->
+  <section id="addTopicSection" a>
+    <h2 id="addTitle">Add New Topic</h2>
+    <form id="addTopicForm">
+      <div>
+        <label for="topicName">Topic Name</label>
+        <input id="topicName" name="topicName" required />
+      </div>
 
-   
-        </form>
-      </section>
+      <div>
+        <label for="startDate">Start Date</label>
+        <input id="startDate" name="startDate" type="date" required />
+      </div>
 
-    <footer>
-      <p> CodeYourFuture | 2025 </p>
-    </footer>
+      <button id="submitNewTopic" type="submit">Add Topic</button>
+    </form>
+  </section>
 
-    <!-- Load main JavaScript (ES Module) -->
-    <script type="module" src="./script.mjs"></script>
-  </body>
+  <footer>
+    <p> CodeYourFuture | 2025 </p>
+  </footer>
+
+  <!-- Load main JavaScript (ES Module) -->
+  <script type="module" src="./script.mjs"></script>
+</body>
+
 </html>
