@@ -8,37 +8,109 @@
 import { getUserIds } from "./common.mjs";
 import { addData, getData } from "./storage.mjs";
 
-const userSelect = document.getElementById("userSelect");
-const newTopicForm = document.getElementById("addTopicForm");
+const userSelect   = document.getElementById("userSelect");
+const addTopicForm = document.getElementById("addTopicForm");
+const agendaList   = document.getElementById("agendaList");
 
 // When the page loads, show all users in the dropdown
 window.onload = () => {
-  const users = getUserIds(); // ["Salah","Amani","Omar","Fatma","Yousef"]
+  const users = getUserIds(); // ["Salah", "Amani", "Omar", "Fatma", "Yousef"]
   userSelect.innerHTML =
     '<option value="">Choose a user…</option>' +
     users.map((u) => `<option value="${u}">${u}</option>`).join("");
 };
 
-document.getElementById('startDate').valueAsDate = new Date();
+// Default start date = today
+document.getElementById("startDate").valueAsDate = new Date();
 
-// When a user is chosen, send an event for later features
+// When a user is selected, show their agenda
 userSelect.addEventListener("change", (e) => {
   const userId = e.target.value;
   document.dispatchEvent(new CustomEvent("user:selected", { detail: { userId } }));
+  renderAgenda(userId);
 });
 
-newTopicForm.addEventListener("submit", (e) => {
+// When a new topic is added
+addTopicForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  const userId = document.getElementById("userSelect").value;
-  if (userId == "") {
-    alert("Select user!");
-    newTopicForm.reset();
-  } else {
-    const topicName = document.getElementById("topicName").value;
-    const startDate = document.getElementById("startDate").value;
-    addData(userId, [topicName, startDate]);
-    newTopicForm.reset();
-    // this line added to check if data is stored, it shod be deleted in final version
-    alert("User_" + userId + " data is: " + getData(userId));
-  }
+
+  const userId    = userSelect.value;
+  const topicName = document.getElementById("topicName").value.trim();
+  const startDate = document.getElementById("startDate").value;
+
+  if (!userId)       { alert("Please select a user."); return; }
+  if (!topicName)    { alert("Topic name is required."); return; }
+  if (!isValidDate(startDate)) { alert("Valid start date is required."); return; }
+
+  // Calculate spaced repetition dates (+1 week, +1 month, +3 months, +6 months, +1 year)
+  const dates = [
+    addDays(new Date(startDate), 7),
+    addMonths(new Date(startDate), 1),
+    addMonths(new Date(startDate), 3),
+    addMonths(new Date(startDate), 6),
+    addMonths(new Date(startDate), 12),
+  ];
+
+  // Save as [{ topic, date }]
+  const payload = dates.map(d => ({ topic: topicName, date: toISO(d) }));
+  addData(userId, payload);
+
+
+  // Reset form and refresh agenda
+  addTopicForm.reset();
+  document.getElementById("startDate").valueAsDate = new Date();
+  renderAgenda(userId);
 });
+
+// ====== Show upcoming agenda items only ======
+function renderAgenda(userId) {
+  const all = getData(userId) || []; // [{topic, date:"YYYY-MM-DD"}]
+  const today = startOfToday();
+
+  const upcoming = all
+    .filter(item => {
+      const d = new Date(item.date);
+      return !Number.isNaN(d.getTime()) && d >= today;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (!upcoming.length) {
+    agendaList.innerHTML = "";
+    return;
+  }
+
+  agendaList.innerHTML = upcoming
+    .map(it => `<li><time datetime="${it.date}">${it.date}</time> — ${it.topic}</li>`)
+    .join("");
+}
+
+// ====== Helper functions ======
+function addDays(d, n) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+
+function addMonths(d, n) {
+  const x = new Date(d);
+  const day = x.getDate();
+  x.setMonth(x.getMonth() + n);
+  // Handle end-of-month (e.g., Jan 31 + 1 month → Feb 29 or 28)
+  if (x.getDate() < day) x.setDate(0);
+  return x;
+}
+
+function toISO(d) {
+  return new Date(d).toISOString().slice(0, 10); // "YYYY-MM-DD"
+}
+
+function startOfToday() {
+  const t = new Date();
+  t.setHours(0, 0, 0, 0);
+  return t;
+}
+
+function isValidDate(str) {
+  const d = new Date(str);
+  return !Number.isNaN(d.getTime());
+}
