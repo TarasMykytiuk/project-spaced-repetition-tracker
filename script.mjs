@@ -12,12 +12,25 @@ const userSelect   = document.getElementById("userSelect");
 const addTopicForm = document.getElementById("addTopicForm");
 const agendaList   = document.getElementById("agendaList");
 
+// ---- Helper: escape HTML to prevent injection (allows numbers, emojis, etc.)
+function escapeHTML(str) {
+  const div = document.createElement("div");
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
 // When the page loads, show all users in the dropdown
 window.onload = () => {
-  const users = getUserIds(); // ["Salah", "Amani", "Omar", "Fatma", "Yousef"]
+  const users = getUserIds(); // e.g. ["1", "2","3"]
   userSelect.innerHTML =
     '<option value="">Choose a user…</option>' +
-    users.map((u) => `<option value="${u}">${u}</option>`).join("");
+    users
+      .map((u) => {
+        const safeValue = escapeHTML(u);
+        const safeLabel = escapeHTML(u);
+        return `<option value="${safeValue}">${safeLabel}</option>`;
+      })
+      .join("");
 };
 
 // Default start date = today
@@ -34,12 +47,13 @@ userSelect.addEventListener("change", (e) => {
 addTopicForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const userId    = userSelect.value;
-  const topicName = document.getElementById("topicName").value.trim();
-  const startDate = document.getElementById("startDate").value;
+  const userId         = userSelect.value;
+  const rawTopicName   = document.getElementById("topicName").value.trim();
+  const topicNameSafe  = escapeHTML(rawTopicName); // <-- sanitize; numbers are fine
+  const startDate      = document.getElementById("startDate").value;
 
   if (!userId)       { alert("Please select a user."); return; }
-  if (!topicName)    { alert("Topic name is required."); return; }
+  if (!rawTopicName) { alert("Topic name is required."); return; }
   if (!isValidDate(startDate)) { alert("Valid start date is required."); return; }
 
   // Calculate spaced repetition dates (+1 week, +1 month, +3 months, +6 months, +1 year)
@@ -52,9 +66,8 @@ addTopicForm.addEventListener("submit", (e) => {
   ];
 
   // Save as [{ topic, date }]
-  const payload = dates.map(d => ({ topic: topicName, date: toISO(d) }));
+  const payload = dates.map(d => ({ topic: topicNameSafe, date: toISO(d) }));
   addData(userId, payload);
-
 
   // Reset form and refresh agenda
   addTopicForm.reset();
@@ -80,7 +93,11 @@ function renderAgenda(userId) {
   }
 
   agendaList.innerHTML = upcoming
-    .map(it => `<li><time datetime="${it.date}">${it.date}</time> — ${it.topic}</li>`)
+    .map(it => {
+      const safeTopic = escapeHTML(it.topic); // <-- sanitize again on render
+      const safeDate  = escapeHTML(it.date);  // (date is ours, but this is cheap insurance)
+      return `<li><time datetime="${safeDate}">${safeDate}</time> — ${safeTopic}</li>`;
+    })
     .join("");
 }
 
