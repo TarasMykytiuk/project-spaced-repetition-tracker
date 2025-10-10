@@ -11,24 +11,28 @@ import { addData, getData } from "./storage.mjs";
 // this condition is added to prevent execution of entire file 
 // when export of functions from here is made
 if (typeof window !== "undefined") {
-  const userSelect = document.getElementById("userSelect");
-  const addTopicForm = document.getElementById("addTopicForm");
-  const agendaList = document.getElementById("agendaList");
-  // When the page loads, show all users in the dropdown
   window.onload = () => {
-    const users = getUserIds(); // e.g. ["1", "2","3"]
-    userSelect.innerHTML =
-      '<option value="">Choose a user…</option>' +
-      users
-        .map((u) => {
-          const safeValue = escapeHTML(u);
-          const safeLabel = escapeHTML(u);
-          return `<option value="${safeValue}">${safeLabel}</option>`;
-        })
-        .join("");
+    const userSelect = document.getElementById("userSelect");
+    const addTopicForm = document.getElementById("addTopicForm");
+    const agendaList = document.getElementById("agendaList");
+    // When the page loads, show all users in the dropdown
+    createUserSelect(userSelect, agendaList);
+    createTopicForm(userSelect, addTopicForm, agendaList)
   };
-  // Default start date = today
-  document.getElementById("startDate").valueAsDate = new Date();
+}
+
+function createUserSelect(userSelect, agendaList) {
+  const users = getUserIds(); // e.g. ["1", "2","3"]
+  userSelect.innerHTML =
+    '<option value="">Choose a user…</option>' +
+    users
+      .map((u) => {
+        const safeValue = escapeHTML(u);
+        const safeLabel = escapeHTML(u);
+        return `<option value="${safeValue}">${safeLabel}</option>`;
+      })
+      .join("");
+
   // When a user is selected, show their agenda
   userSelect.addEventListener("change", (e) => {
     const userId = e.target.value;
@@ -37,6 +41,11 @@ if (typeof window !== "undefined") {
     const currentDate = startOfToday();
     renderAgenda(userData, currentDate, agendaList);
   });
+}
+
+function createTopicForm(userSelect, addTopicForm, agendaList) {
+  // Default start date = today
+  refreshTime();
   // When a new topic is added
   addTopicForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -62,11 +71,15 @@ if (typeof window !== "undefined") {
     addData(userId, payload);
     // Reset form and refresh agenda
     addTopicForm.reset();
-    document.getElementById("startDate").valueAsDate = new Date();
+    refreshTime();
     const userData = getData(userId) || []; // [{topic, date:"YYYY-MM-DD"}]
     const currentDate = startOfToday();
     renderAgenda(userData, currentDate, agendaList);
   });
+}
+
+function refreshTime() {
+  document.getElementById("startDate").valueAsDate = new Date();
 }
 
 // ---- Helper: escape HTML to prevent injection (allows numbers, emojis, etc.)
