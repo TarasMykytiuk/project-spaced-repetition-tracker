@@ -13,10 +13,16 @@ const addTopicForm = document.getElementById("addTopicForm");
 const agendaList   = document.getElementById("agendaList");
 
 // ---- Helper: escape HTML to prevent injection (allows numbers, emojis, etc.)
-function escapeHTML(str) {
-  const div = document.createElement("div");
-  div.textContent = String(str);
-  return div.innerHTML;
+function escapeHTML(str = '') {
+  const symbols = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+
+  return String(str).replace(/[&<>"']/g, char => symbols[char]);
 }
 
 // When the page loads, show all users in the dropdown
