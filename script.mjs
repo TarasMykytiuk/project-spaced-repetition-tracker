@@ -70,11 +70,16 @@ if (typeof window !== "undefined") {
 }
 
 // ---- Helper: escape HTML to prevent injection (allows numbers, emojis, etc.)
-/*
-function escapeHTML(str) {
-  const div = document.createElement("div");
-  div.textContent = String(str);
-  return div.innerHTML;
+function escapeHTML(str = '') {
+  const symbols = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+
+  return String(str).replace(/[&<>"']/g, char => symbols[char]);
 }
 */
 // function with div created, prevent unit test from proper working
