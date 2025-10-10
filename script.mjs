@@ -81,15 +81,6 @@ function escapeHTML(str = '') {
 
   return String(str).replace(/[&<>"']/g, char => symbols[char]);
 }
-*/
-// function with div created, prevent unit test from proper working
-// for now lets use this variant
-function escapeHTML(str) {
-  if (str == null) return '';
-  return String(str).replace(/[&<>"'\/`=]/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;'
-  })[c]);
-}
 
 // ====== Show upcoming agenda items only ======
 export function renderAgenda(userData, currentDate, agendaList) {
